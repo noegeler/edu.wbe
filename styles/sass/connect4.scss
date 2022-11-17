@@ -1,5 +1,9 @@
 @import 'mixins/colors';
 
+body {
+  font-family:Arial;
+}
+
 div {
   box-sizing: border-box;
 }
@@ -17,6 +21,7 @@ div {
     border: 1px solid $colorBorder;
     width: 12vw;
     height: 12vw;
+    cursor: pointer;
 
     &:first-child {
       display: block;
@@ -38,3 +43,28 @@ div {
     }
   }
 }
+
+.myButton {
+  background-color: $colorPlayerOne;
+  border-radius:28px;
+  border:1px solid $colorPlayerTwo;
+  display:inline-block;
+  cursor:pointer;
+  color: $colorButtonText;
+  font-size:17px;
+  padding:16px 31px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px $colorBorder;
+  margin-bottom: 20px;
+  margin-left: 50px;
+
+  &:hover {
+    background-color: $colorPlayerTwo;
+  }
+
+  &:active {
+    position:relative;
+    top:1px;
+  }
+}
+

@@ -1,3 +1,7 @@
+body {
+  font-family: Arial;
+}
+
 div {
   box-sizing: border-box;
 }
@@ -14,6 +18,7 @@ div {
   border: 1px solid #000000;
   width: 12vw;
   height: 12vw;
+  cursor: pointer;
 }
 .board .field:first-child {
   display: block;
@@ -29,6 +34,28 @@ div {
 }
 .board .field .playerTwo {
   background-color: #3A86FF;
+}
+
+.myButton {
+  background-color: #FF006E;
+  border-radius: 28px;
+  border: 1px solid #3A86FF;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 17px;
+  padding: 16px 31px;
+  text-decoration: none;
+  text-shadow: 0px 1px 0px #000000;
+  margin-bottom: 20px;
+  margin-left: 50px;
+}
+.myButton:hover {
+  background-color: #3A86FF;
+}
+.myButton:active {
+  position: relative;
+  top: 1px;
 }
 
 /*# sourceMappingURL=connect4.css.map */
