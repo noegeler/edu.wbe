@@ -1,0 +1,86 @@
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+body {
+  font-family: Arial;
+}
+
+div {
+  box-sizing: border-box;
+}
+
+.menu {
+  margin-left: 45px;
+}
+
+.saved {
+  color: #59FFA0;
+}
+
+.failed {
+  color: #4C1036;
+}
+
+.loading {
+  -webkit-animation: rotation 2s linear infinite;
+  animation: rotation 2s linear infinite;
+}
+
+.myButton {
+  background-color: #FF006E;
+  border-radius: 28px;
+  border: 1px solid #3A86FF;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 17px;
+  padding: 16px 31px;
+  text-decoration: none;
+  text-shadow: 0px 1px 0px #08090A;
+  margin-bottom: 20px;
+  margin-left: 10px;
+}
+.myButton:hover {
+  background-color: #3A86FF;
+}
+.myButton:active {
+  position: relative;
+  top: 1px;
+}
+
+.board {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 84vw;
+  margin: auto;
+  outline: 1px solid #08090A;
+}
+.board .field {
+  border: 1px solid #08090A;
+  width: 12vw;
+  height: 12vw;
+  cursor: pointer;
+}
+.board .field:first-child {
+  display: block;
+}
+.board .field .piece {
+  width: 10vw;
+  height: 10vw;
+  border-radius: 50%;
+  margin: 1vw;
+}
+.board .field .playerOne {
+  background-color: #FF006E;
+}
+.board .field .playerTwo {
+  background-color: #3A86FF;
+}
+
+/*# sourceMappingURL=connect4.css.map */

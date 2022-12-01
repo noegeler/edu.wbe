@@ -1,9 +1,21 @@
 const boardWidth = 7
 const boardHight = 6
+const SERVICE = "http://localhost:3000/api/data/c4state?api-key=c4game"
 
+// events
+const savingEvent = new Event('saved')
+const loadingEvent = new Event('loading')
+const failedEvent = new Event('failed')
+
+// current state of board
 let state = {board: undefined, playerTurn: 'r'}
+
+// document elements
 let container;
 let newGameButton;
+let loadButton;
+let saveButton;
+let savingProgress;
 
 document.onreadystatechange = function () {
     if (document.readyState == "interactive") {
@@ -13,6 +25,30 @@ document.onreadystatechange = function () {
         newGameButton = document.getElementById('newGame')
         newGameButton.addEventListener('click', newGame)
 
+        loadButton = document.getElementById('load')
+        loadButton.addEventListener('click', loadState)
+
+        saveButton = document.getElementById('save')
+        saveButton.addEventListener('click', saveState)
+
+
+        // add events for savingProgress
+        savingProgress = document.getElementById('savingState')
+        savingProgress.addEventListener('loading', (e) => {
+            savingProgress.innerHTML = '<img class="loading" src="./styles/icons/spinner-solid.svg" width="30" height="30"> </img>'
+        })
+        savingProgress.addEventListener('saved', (e) => {
+            savingProgress.innerHTML = '✔'
+            savingProgress.classList.toggle('failed', false)
+            savingProgress.classList.toggle('saved', true)
+        })
+        savingProgress.addEventListener('failed', (e) => {
+            savingProgress.innerHTML = '✖'
+            savingProgress.classList.toggle('failed', true)
+            savingProgress.classList.toggle('saved', false)
+        })
+
+
         // start new game
         newGame()
     }
@@ -21,6 +57,7 @@ document.onreadystatechange = function () {
 function newGame() {
     loadEmptyBoardState()
     showBoard()
+    container.addEventListener('click', makeTurn)
 }
 
 function elt(type, attrs, ...children) {
@@ -72,7 +109,6 @@ function addPieceToRow(columnNr) {
     for (let i = boardHight-1; i >= 0; i--) {
         if (state.board[i][columnNr] === '') {
             state.board[i][columnNr] = state.playerTurn
-            changePlayerTurn()
             return
         }
     }
@@ -103,7 +139,6 @@ function createPiece(state) {
 }
 
 function makeTurn(event) {
-    console.log(event.target)
     let field = event.target
     // if on piece is clicked get field
     if (field.classList.contains('piece')) {
@@ -116,4 +151,56 @@ function makeTurn(event) {
 
     addPieceToRow(columnNr)
     showBoard()
+
+    // check winner
+    checkWinner()
+    changePlayerTurn()
+}
+
+//  Get current state from server and re-draw board
+//
+function loadState () {
+
+    fetch(SERVICE, {
+        method: 'GET',
+    }).then(response => {
+        response.json().then(data => {
+            if (typeof data !== 'undefined') {
+                state = data
+                showBoard()
+                checkWinner()
+                changePlayerTurn()
+                checkWinner()
+                changePlayerTurn()
+            }
+        })
+    })
+}
+
+//  Put current state to server
+//
+function saveState () {
+    let data = JSON.stringify(state)
+    savingProgress.dispatchEvent(loadingEvent)
+
+    fetch(SERVICE, {
+        method: 'PUT',
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: data
+    }).then((response) => {
+        savingProgress.dispatchEvent(savingEvent)
+    }).catch((error) => {
+        alert("Something went wrong while saving! Please try again.")
+        savingProgress.dispatchEvent(failedEvent)
+    })
+}
+
+function checkWinner() {
+    if (connect4Winner(state.playerTurn, state.board)) {
+        let player = (state.playerTurn === 'r') ? "One" : "Two"
+        alert("Player " + player + " wins!!!")
+        container.removeEventListener('click', makeTurn)
+    }
 }
