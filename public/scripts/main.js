@@ -16,6 +16,7 @@ let newGameButton;
 let loadButton;
 let saveButton;
 let savingProgress;
+let switchLoadingMethodSwitch;
 
 document.onreadystatechange = function () {
     if (document.readyState == "interactive") {
@@ -26,11 +27,13 @@ document.onreadystatechange = function () {
         newGameButton.addEventListener('click', newGame)
 
         loadButton = document.getElementById('load')
-        loadButton.addEventListener('click', loadState)
+        loadButton.addEventListener('click', loadStateServer)
 
         saveButton = document.getElementById('save')
-        saveButton.addEventListener('click', saveState)
+        saveButton.addEventListener('click', saveStateServer)
 
+        switchLoadingMethodSwitch = document.getElementById('switchLoadingMethod')
+        switchLoadingMethodSwitch.addEventListener('change', switchLoadingMethod)
 
         // add events for savingProgress
         savingProgress = document.getElementById('savingState')
@@ -47,6 +50,8 @@ document.onreadystatechange = function () {
             savingProgress.classList.toggle('failed', true)
             savingProgress.classList.toggle('saved', false)
         })
+
+
 
 
         // start new game
@@ -159,8 +164,7 @@ function makeTurn(event) {
 
 //  Get current state from server and re-draw board
 //
-function loadState () {
-
+function loadStateServer () {
     fetch(SERVICE, {
         method: 'GET',
     }).then(response => {
@@ -177,9 +181,24 @@ function loadState () {
     })
 }
 
+function loadStateLocal() {
+    let localState = localStorage.getItem('state')
+
+    if (localState === null) {
+        return
+    }
+
+    state = JSON.parse(localState)
+    showBoard()
+    checkWinner()
+    changePlayerTurn()
+    checkWinner()
+    changePlayerTurn()
+}
+
 //  Put current state to server
 //
-function saveState () {
+function saveStateServer () {
     let data = JSON.stringify(state)
     savingProgress.dispatchEvent(loadingEvent)
 
@@ -197,10 +216,30 @@ function saveState () {
     })
 }
 
+function saveStateLocal() {
+    localStorage.setItem('state', JSON.stringify(state))
+    savingProgress.dispatchEvent(savingEvent)
+}
+
 function checkWinner() {
     if (connect4Winner(state.playerTurn, state.board)) {
         let player = (state.playerTurn === 'r') ? "One" : "Two"
         alert("Player " + player + " wins!!!")
         container.removeEventListener('click', makeTurn)
+    }
+}
+
+function switchLoadingMethod() {
+    let isChecked = switchLoadingMethodSwitch.querySelector('input').checked
+    if (isChecked) {
+        loadButton.removeEventListener('click', loadStateServer)
+        saveButton.removeEventListener('click', saveStateServer)
+        loadButton.addEventListener('click', loadStateLocal)
+        saveButton.addEventListener('click', saveStateLocal)
+    } else {
+        loadButton.removeEventListener('click', loadStateLocal)
+        saveButton.removeEventListener('click', saveStateLocal)
+        loadButton.addEventListener('click', loadStateServer)
+        saveButton.addEventListener('click', saveStateServer)
     }
 }
