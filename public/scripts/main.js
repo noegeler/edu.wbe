@@ -9,6 +9,7 @@ const failedEvent = new Event('failed')
 
 // current state of board
 let state = {board: undefined, playerTurn: 'r'}
+let stateSeq = []
 
 // document elements
 let container;
@@ -17,6 +18,7 @@ let loadButton;
 let saveButton;
 let savingProgress;
 let switchLoadingMethodSwitch;
+let undoButton;
 
 document.onreadystatechange = function () {
     if (document.readyState == "interactive") {
@@ -51,7 +53,8 @@ document.onreadystatechange = function () {
             savingProgress.classList.toggle('saved', false)
         })
 
-
+        undoButton = document.getElementById('undo');
+        undoButton.addEventListener('click', undoTurn);
 
 
         // start new game
@@ -102,6 +105,8 @@ function createBoard(container) {
 function loadEmptyBoardState() {
     state.board = Array(boardHight).fill('').map(el => Array(boardWidth).fill(''))
     state.playerTurn = 'r'
+
+    stateSeq = []
 }
 
 function addPieceToRow(columnNr) {
@@ -113,7 +118,7 @@ function addPieceToRow(columnNr) {
     //check where board has piece
     for (let i = boardHight-1; i >= 0; i--) {
         if (state.board[i][columnNr] === '') {
-            state.board[i][columnNr] = state.playerTurn
+            state.board[i] = setInList(state.board[i], columnNr, state.playerTurn)
             return
         }
     }
@@ -144,6 +149,13 @@ function createPiece(state) {
 }
 
 function makeTurn(event) {
+    // save last state to stateSeq -> JSON.stringify, JSON.parse for deep copy
+    let newBoard = []
+    for (let i = 0; i < boardHight; i++) {
+        newBoard = setInList(newBoard, i, state.board[i])
+    }
+    stateSeq.push(setInObj(state, "board", newBoard))
+
     let field = event.target
     // if on piece is clicked get field
     if (field.classList.contains('piece')) {
@@ -242,4 +254,41 @@ function switchLoadingMethod() {
         loadButton.addEventListener('click', loadStateServer)
         saveButton.addEventListener('click', saveStateServer)
     }
+}
+
+function undoTurn() {
+    // if winner was set -> add event listener back
+    if (connect4Winner('r', state.board) || connect4Winner('b', state.board)) {
+        container.addEventListener('click', makeTurn)
+    }
+
+    let newstate = stateSeq.pop()
+    if (typeof newstate !== 'undefined') {
+        state = newstate
+        showBoard()
+    }
+}
+
+function setInList(lst, idx, val) {
+    if (Array.isArray(lst)) {
+        let lstb = [...lst]
+
+        lstb[idx] = val
+
+        return lstb
+    }
+
+    return lst
+}
+
+function setInObj(obj, attr, val) {
+    if (typeof obj === "object") {
+        let objb = {...obj}
+
+        objb[attr] = val
+
+        return objb
+    }
+
+    return obj
 }
